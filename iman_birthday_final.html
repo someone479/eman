@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>عيد ميلاد إيمان - 21 عامًا</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    #bd-root{min-height:100vh;background:#0d0b12;color:#f5f0e8;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem 5rem;position:relative;overflow:hidden;}
+    #particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+    .screen{position:relative;z-index:2;text-align:center;max-width:560px;width:100%;display:none;flex-direction:column;align-items:center;gap:1.5rem;}
+    .screen.active{display:flex;}
+
+    /* COUNTDOWN */
+    .lock-icon{width:72px;height:72px;border:1.5px solid rgba(255,220,180,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;animation:pulse-lock 3s ease-in-out infinite;}
+    @keyframes pulse-lock{0%,100%{box-shadow:0 0 0 0 rgba(255,180,100,0.15);}50%{box-shadow:0 0 0 20px rgba(255,180,100,0);}}
+    .cd-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,3.5vw,1.4rem);font-weight:300;color:rgba(245,240,232,0.5);letter-spacing:.2em;text-transform:uppercase;}
+    .cd-grid{display:flex;gap:.8rem;align-items:flex-start;justify-content:center;}
+    .cd-unit{display:flex;flex-direction:column;align-items:center;gap:5px;}
+    .cd-num{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,9vw,4.5rem);font-weight:600;line-height:1;color:#f5f0e8;min-width:2ch;text-align:center;}
+    .cd-lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,240,232,0.3);}
+    .cd-sep{font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:rgba(245,240,232,0.15);line-height:1;padding-top:.1em;}
+
+    /* PASSWORD */
+    .pw-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,5vw,2.2rem);font-weight:300;letter-spacing:.1em;color:rgba(245,240,232,0.8);}
+    .pw-sub{font-size:13px;color:rgba(245,240,232,0.3);}
+    .pw-dots{display:flex;gap:14px;justify-content:center;margin:.5rem 0;}
+    .pw-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(255,200,130,0.3);transition:all .3s;}
+    .pw-dot.filled{background:#f5c87a;border-color:#f5c87a;box-shadow:0 0 10px rgba(245,200,122,0.5);}
+    .pw-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;width:100%;}
+    .pw-key{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,200,130,0.12);border-radius:12px;padding:16px;font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#f5f0e8;cursor:pointer;transition:all .15s;user-select:none;}
+    .pw-key:hover{background:rgba(255,200,130,0.1);border-color:rgba(255,200,130,0.3);}
+    .pw-key:active{transform:scale(.93);}
+    .pw-key.del{font-family:'DM Sans',sans-serif;font-size:.85rem;color:rgba(245,240,232,0.4);}
+    .pw-error{font-size:13px;color:#e2746a;min-height:18px;}
+
+    /* MAIN */
+    .age-badge{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,18vw,9rem);font-weight:300;line-height:.85;color:transparent;-webkit-text-stroke:1px rgba(255,200,130,0.4);letter-spacing:-.05em;animation:fade-in 1.5s ease forwards;}
+    .main-name{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,7vw,4rem);font-weight:600;color:#f5f0e8;letter-spacing:.05em;line-height:1;animation:slide-up 1s ease .3s both;}
+    .tagline{font-size:clamp(.7rem,1.8vw,.85rem);letter-spacing:.4em;text-transform:uppercase;color:rgba(245,240,232,0.35);animation:slide-up 1s ease .6s both;}
+    .divider{width:50px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,200,130,0.4),transparent);animation:fade-in 1s ease .8s both;}
+    .message-card{background:rgba(255,255,255,0.03);border:.5px solid rgba(255,200,130,0.12);border-radius:16px;padding:1.8rem 2rem;animation:slide-up 1s ease 1s both;}
+    .message-card p{font-size:clamp(.9rem,2.3vw,1.05rem);line-height:2;color:rgba(245,240,232,0.7);font-weight:300;}
+    .message-card p span{color:#f5c87a;}
+
+    /* GALLERY */
+    .gallery-section{width:100%;animation:slide-up 1s ease 1.2s both;}
+    .gallery-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(245,240,232,0.22);margin-bottom:.8rem;text-align:center;}
+
+    /* PHOTO FLIP */
+    .photo-reveal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+    .photo-card{aspect-ratio:1;border-radius:12px;position:relative;overflow:hidden;cursor:pointer;}
+    .photo-card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.8s cubic-bezier(0.4,0,0.2,1);}
+    .photo-card.revealed .photo-card-inner{transform:rotateY(180deg);}
+    .photo-card-front{position:absolute;inset:0;background:rgba(255,200,130,0.06);border:.5px solid rgba(255,200,130,0.15);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:rgba(245,240,232,0.3);font-size:11px;backface-visibility:hidden;}
+    .photo-card-front i{font-size:22px;opacity:.3;}
+    .photo-card-back{position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);border-radius:12px;overflow:hidden;}
+    .photo-card-back img{width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;}
+    .reveal-overlay{position:absolute;inset:0;background:rgba(255,200,130,0.25);border-radius:12px;opacity:0;transition:opacity .3s;pointer-events:none;}
+    @keyframes shine-in{
+      0%{clip-path:inset(0 100% 0 0);}
+      100%{clip-path:inset(0 0% 0 0);}
+    }
+    .photo-card-back img.shining{animation:shine-in .9s cubic-bezier(.4,0,.2,1) forwards;}
+    .sparkle{position:fixed;pointer-events:none;z-index:998;font-size:18px;animation:sparkle-fly linear forwards;}
+    @keyframes sparkle-fly{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}}
+    @keyframes fade-in{from{opacity:0;}to{opacity:1;}}
+    @keyframes slide-up{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    .confetti-piece{position:fixed;pointer-events:none;z-index:999;animation:confetti-fall linear forwards;}
+    @keyframes confetti-fall{0%{opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+    #dev-bar{position:fixed;bottom:0;left:0;right:0;z-index:999;display:flex;gap:8px;justify-content:center;padding:10px;background:rgba(13,11,18,0.9);border-top:.5px solid rgba(255,200,130,0.1);}
+    .dev-btn{background:rgba(255,200,130,0.08);border:.5px solid rgba(255,200,130,0.2);border-radius:8px;color:rgba(255,200,130,0.55);font-size:11px;padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+    .dev-btn:hover{background:rgba(255,200,130,0.15);color:rgba(255,200,130,0.9);}
+    .dev-btn.active-screen{border-color:rgba(255,200,130,0.5);color:#f5c87a;}
+  </style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div id="bd-root">
+
+  <!-- SCREEN 1: COUNTDOWN -->
+  <div class="screen active" id="s-lock">
+    <div class="lock-icon">🔒</div>
+    <div class="cd-title">بتفتح عند منتصف الليل</div>
+    <div class="cd-grid">
+      <div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-lbl">ساعات</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-lbl">دقايق</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">ثواني</div></div>
+    </div>
+    <div style="font-size:12px;color:rgba(245,240,232,0.25);letter-spacing:.1em;">⸻ استنّي لحد 12 ⸻</div>
+  </div>
+
+  <!-- SCREEN 2: PASSWORD -->
+  <div class="screen" id="s-pw">
+    <div class="pw-title">ادخل الرقم السري</div>
+    <div class="pw-sub">في مفتاح هنا.. دوّري عليه 🗝</div>
+    <div class="pw-dots"><div class="pw-dot" id="d0"></div><div class="pw-dot" id="d1"></div></div>
+    <div class="pw-keypad">
+      <button class="pw-key" onclick="pwPress('1')">1</button>
+      <button class="pw-key" onclick="pwPress('2')">2</button>
+      <button class="pw-key" onclick="pwPress('3')">3</button>
+      <button class="pw-key" onclick="pwPress('4')">4</button>
+      <button class="pw-key" onclick="pwPress('5')">5</button>
+      <button class="pw-key" onclick="pwPress('6')">6</button>
+      <button class="pw-key" onclick="pwPress('7')">7</button>
+      <button class="pw-key" onclick="pwPress('8')">8</button>
+      <button class="pw-key" onclick="pwPress('9')">9</button>
+      <button class="pw-key del" onclick="pwDel()">مسح</button>
+      <button class="pw-key" onclick="pwPress('0')">0</button>
+      <button class="pw-key del" onclick="pwClear()">✕</button>
+    </div>
+    <div class="pw-error" id="pw-err"></div>
+  </div>
+
+  <!-- SCREEN 3: MAIN -->
+  <div class="screen" id="s-main">
+    <div class="age-badge">21</div>
+    <div class="main-name">إيمان</div>
+    <div class="tagline">كل سنة وانتِ بخير</div>
+    <div class="divider"></div>
+    <div class="message-card">
+      <p>
+        يا <span>إيمان</span>، ٢١ سنة من النور والحلاوة 🤍<br>
+        انتِ مش بس بتكبري، انتِ بتتألقي.<br>
+        ربنا يكمّل عليكِ الفرحة ويوفقك في كل خطوة.<br>
+        <span>عيد ميلاد سعيد</span> يا أجمل واحدة 🎂✨
+      </p>
+    </div>
+    <div class="gallery-section">
+      <div class="gallery-label">اضغطي على كل صورة</div>
+      <div class="photo-reveal-grid">
+        <div class="photo-card" id="pc0" onclick="revealPhoto(0)">
+          <div class="photo-card-inner">
+            <div class="photo-card-front"><i>✨</i><span>١</span></div>
+            <div class="photo-card-back"><img id="pi0" src="img1.jpeg" alt="صورة 1" /><div class="reveal-overlay" id="ro0"></div></div>
+          </div>
+        </div>
+        <div class="photo-card" id="pc1" onclick="revealPhoto(1)">
+          <div class="photo-card-inner">
+            <div class="photo-card-front"><i>✨</i><span>٢</span></div>
+            <div class="photo-card-back"><img id="pi1" src="img2.jpeg" alt="صورة 2" /><div class="reveal-overlay" id="ro1"></div></div>
+          </div>
+        </div>
+        <div class="photo-card" id="pc2" onclick="revealPhoto(2)">
+          <div class="photo-card-inner">
+            <div class="photo-card-front"><i>✨</i><span>٣</span></div>
+            <div class="photo-card-back"><img id="pi2" src="img3.jpeg" alt="صورة 3" /><div class="reveal-overlay" id="ro2"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dev-bar">
+  <button class="dev-btn active-screen" id="btn-lock" onclick="devGo('s-lock')">🔒 العد التنازلي</button>
+  <button class="dev-btn" id="btn-pw" onclick="devGo('s-pw')">🗝 الباسورد</button>
+  <button class="dev-btn" id="btn-main" onclick="devGo('s-main')">🎉 الرئيسية</button>
+</div>
+
+<script>
+  // ======================== التاريخ المستهدف (عدّال الميلاد) ========================
+  // غيّر التاريخ هنا حسب الحاجة (السنة والشهر واليوم والساعة بالدقيقة والثانية)
+const TARGET_DATE = new Date(2026, 4, 11, 0, 0, 0); // 11 مايو 2026 - 00:00
+//   // ملاحظة: الأشهر في جافاسكريبت تبدأ من 0 (يناير=0، مايو=4)
+
+  // ======================== دوال مساعدة ========================
+  const pad = n => String(n).padStart(2, '0');
+
+  // التحقق مما إذا كان الوقت الحالي قد تجاوز التاريخ المستهدف
+  function isPastTarget() {
+    const now = new Date();
+    return now.getTime() >= TARGET_DATE.getTime();
+  }
+
+  // الحصول على الثواني المتبقية (إذا كان الوقت لم يتجاوز الهدف، وإلا يرجع 0)
+  function getSecondsRemaining() {
+    if (isPastTarget()) return 0;
+    const now = new Date();
+    const diff = TARGET_DATE.getTime() - now.getTime();
+    return Math.floor(diff / 1000);
+  }
+
+  // عرض شاشة معينة وتحديث حالة الأزرار
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    ['lock','pw','main'].forEach(k => {
+      const btn = document.getElementById('btn-'+k);
+      if(btn) btn.classList.toggle('active-screen', id === 's-'+k);
+    });
+  }
+
+  // الدخول السريع من شريط التطوير (مع إعادة تعيين الباسورد)
+  function devGo(id) {
+    if (id === 's-pw') {
+      pwVal = '';
+      updateDots();
+      document.getElementById('pw-err').textContent = '';
+    }
+    showScreen(id);
+    if (id === 's-main') setTimeout(spawnCelebration, 200);
+  }
+
+  // ======================== العداد (Countdown) ========================
+  let countdownInterval = null;
+
+  function updateCountdownDisplay() {
+    const secs = getSecondsRemaining();
+    if (secs <= 0) {
+      // انتهى الوقت: إيقاف العداد نهائياً والانتقال لشاشة الباسورد
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = null;
+      // إعادة تعيين الباسورد قبل الانتقال
+      pwVal = '';
+      updateDots();
+      document.getElementById('pw-err').textContent = '';
+      showScreen('s-pw');
+      return;
+    }
+    const hours = Math.floor(secs / 3600);
+    const minutes = Math.floor((secs % 3600) / 60);
+    const seconds = secs % 60;
+    document.getElementById('cd-h').textContent = pad(hours);
+    document.getElementById('cd-m').textContent = pad(minutes);
+    document.getElementById('cd-s').textContent = pad(seconds);
+  }
+
+  function startCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    // تحديث أولي
+    updateCountdownDisplay();
+    // إذا كان الوقت قد تجاوز الهدف، لا نبدأ مؤقتاً (updateCountdownDisplay سينتقل للباسورد)
+    if (getSecondsRemaining() <= 0) return;
+    countdownInterval = setInterval(updateCountdownDisplay, 1000);
+  }
+
+  // ======================== الباسورد (Password) ========================
+  let pwVal = '';
+  const PASSWORD = '21';
+
+  function updateDots() {
+    for (let i = 0; i < 2; i++) {
+      const dot = document.getElementById('d'+i);
+      if (i < pwVal.length) dot.classList.add('filled');
+      else dot.classList.remove('filled');
+    }
+  }
+
+  function pwPress(d) {
+    if (pwVal.length >= 2) return;
+    pwVal += d;
+    updateDots();
+    document.getElementById('pw-err').textContent = '';
+    if (pwVal.length === 2) {
+      setTimeout(() => {
+        if (pwVal === PASSWORD) {
+          showScreen('s-main');
+          setTimeout(spawnCelebration, 200);
+        } else {
+          document.getElementById('pw-err').textContent = 'رقم غلط، حاولي تاني 😏';
+          pwVal = '';
+          updateDots();
+        }
+      }, 200);
+    }
+  }
+  function pwDel() { pwVal = pwVal.slice(0, -1); updateDots(); }
+  function pwClear() { pwVal = ''; updateDots(); }
+
+  // ======================== معرض الصور (Reveal) ========================
+  const revealed = [false, false, false];
+
+  function revealPhoto(idx) {
+    if (revealed[idx]) return;
+    revealed[idx] = true;
+    const card = document.getElementById('pc'+idx);
+    const img = document.getElementById('pi'+idx);
+    const overlay = document.getElementById('ro'+idx);
+    card.classList.add('revealed');
+    if (img) {
+      img.classList.add('shining');
+      setTimeout(() => img.classList.remove('shining'), 900);
+    }
+    if (overlay) {
+      overlay.style.opacity = '1';
+      setTimeout(() => overlay.style.opacity = '0', 400);
+    }
+    // sparkles
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const emojis = ['✨','🌟','💫','🎉','🌸','💛'];
+    for (let i=0;i<10;i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      const angle = (i/10)*Math.PI*2;
+      const dist = 60 + Math.random()*80;
+      el.style.left = cx + 'px';
+      el.style.top = cy + 'px';
+      el.style.setProperty('--tx', (Math.cos(angle)*dist)+'px');
+      el.style.setProperty('--ty', (Math.sin(angle)*dist)+'px');
+      el.style.animationDuration = (.6+Math.random()*.6)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 1500);
+    }
+    // confetti small
+    const cols=['#f5c87a','#f0a0c0','#a0d8f0','#ffffff'];
+    for (let i=0;i<20;i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.width = (5+Math.random()*5)+'px';
+      piece.style.height = (5+Math.random()*5)+'px';
+      piece.style.borderRadius = Math.random()>.5 ? '50%' : '2px';
+      piece.style.background = cols[Math.floor(Math.random()*cols.length)];
+      piece.style.left = (cx-20+Math.random()*40)+'px';
+      piece.style.top = cy+'px';
+      const dur = 1.5+Math.random()*2;
+      piece.style.animationDuration = dur+'s';
+      document.body.appendChild(piece);
+      setTimeout(()=>piece.remove(), (dur+1)*1000);
+    }
+  }
+
+  // ======================== احتفالية كبيرة ========================
+  const celebItems = ['🎉','🎂','✨','🌸','🎈','💫','🌟','🥳','💛','🎊'];
+  function spawnCelebration() {
+    for (let wave=0; wave<4; wave++) {
+      setTimeout(() => {
+        for (let i=0; i<35; i++) {
+          const el = document.createElement('div');
+          el.className = 'confetti-piece';
+          if (Math.random() > 0.5) {
+            el.textContent = celebItems[Math.floor(Math.random()*celebItems.length)];
+            el.style.fontSize = (16+Math.random()*20)+'px';
+            el.style.width = 'auto';
+            el.style.height = 'auto';
+            el.style.background = 'transparent';
+          } else {
+            el.style.width = (6+Math.random()*6)+'px';
+            el.style.height = (6+Math.random()*6)+'px';
+            el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            const c = ['#f5c87a','#f0a0c0','#a0d8f0','#c8f0a0','#ffffff','#ffd700'];
+            el.style.background = c[Math.floor(Math.random()*c.length)];
+          }
+          el.style.left = (Math.random()*100)+'vw';
+          el.style.top = '-40px';
+          const dur = 2.5+Math.random()*3;
+          el.style.animationDuration = dur+'s';
+          el.style.animationDelay = (Math.random()*1)+'s';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), (dur+1.5)*1000);
+        }
+      }, wave*400);
+    }
+  }
+
+  // ======================== خلفية الجسيمات ========================
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resizeCanvas() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  function initParticles() {
+    particles = [];
+    for (let i=0; i<55; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 0.3 + Math.random() * 1.4,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: -0.1 - Math.random() * 0.25,
+        a: 0.1 + Math.random() * 0.5
+      });
+    }
+  }
+  function animateParticles() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < -5) { p.y = H+5; p.x = Math.random() * W; }
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(245, 200, 130, ${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+  resizeCanvas();
+  initParticles();
+  animateParticles();
+
+  // ======================== بدء التطبيق ========================
+  // تحديد الشاشة الابتدائية: إذا كان الوقت تجاوز الهدف -> اذهب للباسورد، وإلا اذهب للعداد
+  if (isPastTarget()) {
+    // بعد التاريخ: نظهر الباسورد (مع مسح أي بيانات قديمة)
+    pwVal = '';
+    updateDots();
+    document.getElementById('pw-err').textContent = '';
+    showScreen('s-pw');
+  } else {
+    showScreen('s-lock');
+    startCountdown();
+  }
+</script>
+</body>
+</html>
